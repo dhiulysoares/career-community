@@ -13,7 +13,7 @@ function KarmaTab() {
         <div className="mb-2">
           <span className="text-6xl font-bold text-primary-400">{karmaData.total}</span>
         </div>
-        <p className="text-dark-400 text-lg font-medium">Karma Points</p>
+        <p className="text-dark-400 text-lg font-medium">Pontos de Contribuição</p>
         <p className="text-sm text-dark-500 mt-1">⚡ Continue contribuindo para subir de nível!</p>
       </div>
 
