@@ -24,7 +24,7 @@ const steps = [
 
 const learningStyles = ['Visual', 'Prático', 'Teórico', 'Social'];
 
-function PersonaTab() {
+function PersonaTab({ userDisplay }) {
   const [subTab, setSubTab] = useState('perfil');
   const [saved, setSaved] = useState(false);
   const [formData, setFormData] = useState({
@@ -48,6 +48,8 @@ function PersonaTab() {
         : [...prev.estilos, estilo],
     }));
   };
+
+  const displayTags = userDisplay?.tags || personaData.tags;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -74,14 +76,14 @@ function PersonaTab() {
           <div className="card p-6">
             <div className="flex items-center gap-3 mb-5">
               <span className="text-2xl">🧠</span>
-              <h2 className="text-xl font-bold text-dark-50">Seu Perfil IA</h2>
+              <h2 className="text-xl font-bold text-white">Seu Perfil IA</h2>
             </div>
 
-            {/* Tags */}
-            <div className="mb-4">
-              <h3 className="text-sm text-dark-400 mb-2 font-medium">Tags de Perfil</h3>
+            {/* Tags - moved here from sidebar */}
+            <div className="mb-5">
+              <h3 className="text-sm text-dark-400 mb-2 font-medium">Suas Tags</h3>
               <div className="flex flex-wrap gap-2">
-                {personaData.tags.map((tag) => (
+                {displayTags.map((tag) => (
                   <span key={tag} className="badge badge-tag">
                     #{tag}
                   </span>
@@ -112,7 +114,7 @@ function PersonaTab() {
 
           {/* How AI built your profile */}
           <div className="card p-6">
-            <h2 className="text-lg font-bold text-dark-50 mb-6">
+            <h2 className="text-lg font-bold text-white mb-6">
               Como a IA construiu seu perfil
             </h2>
 
@@ -121,11 +123,11 @@ function PersonaTab() {
               {steps.map((step, index) => (
                 <div key={step.number} className="flex gap-4 mb-8 last:mb-0">
                   <div className="flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-lg shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-lg shrink-0">
                       {step.icon}
                     </div>
                     {index < steps.length - 1 && (
-                      <div className="w-0.5 flex-1 bg-primary-600/30 mt-2" />
+                      <div className="w-0.5 flex-1 bg-primary-500/30 mt-2" />
                     )}
                   </div>
                   <div className="pb-2">
@@ -141,7 +143,7 @@ function PersonaTab() {
 
           {/* Recommended Communities */}
           <div className="card p-6">
-            <h2 className="text-lg font-bold text-dark-50 mb-5">
+            <h2 className="text-lg font-bold text-white mb-5">
               Comunidades Recomendadas
             </h2>
 
@@ -149,7 +151,7 @@ function PersonaTab() {
               {personaData.recommendations.map((rec) => (
                 <div
                   key={rec.communityName}
-                  className="bg-dark-700/50 border border-dark-600 rounded-xl p-5 hover:border-primary-600/40 transition-all duration-200"
+                  className="bg-dark-700/50 border border-dark-600 rounded-xl p-5 hover:border-primary-500/40 transition-all duration-200"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="font-semibold text-dark-100">
@@ -191,7 +193,7 @@ function PersonaTab() {
           <div className="flex items-center gap-3 mb-6">
             <span className="text-2xl">✏️</span>
             <div>
-              <h2 className="text-xl font-bold text-dark-50">Editar Respostas</h2>
+              <h2 className="text-xl font-bold text-white">Editar Respostas</h2>
               <p className="text-sm text-dark-400">
                 Atualize suas respostas do formulário de onboarding para refinar as
                 recomendações da IA.
@@ -274,7 +276,7 @@ function PersonaTab() {
                     key={estilo}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-all duration-200 ${
                       formData.estilos.includes(estilo)
-                        ? 'bg-primary-600/20 border-primary-500 text-primary-400'
+                        ? 'bg-primary-500/20 border-primary-500 text-primary-400'
                         : 'bg-dark-800 border-dark-600 text-dark-300 hover:border-dark-500'
                     }`}
                   >
@@ -287,7 +289,7 @@ function PersonaTab() {
                     <span
                       className={`w-4 h-4 rounded border flex items-center justify-center text-xs ${
                         formData.estilos.includes(estilo)
-                          ? 'bg-primary-600 border-primary-600 text-white'
+                          ? 'bg-primary-500 border-primary-500 text-dark-950'
                           : 'border-dark-500'
                       }`}
                     >

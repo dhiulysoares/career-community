@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import { editais } from '../data/mockData';
 
-function EditaisTab() {
+function EditaisTab({ isVeterano, showToast }) {
   const [savedState, setSavedState] = useState(
     editais.reduce((acc, e) => ({ ...acc, [e.id]: e.saved }), {})
   );
 
   const sortedEditais = [...editais].sort((a, b) => b.matchPercent - a.matchPercent);
 
-  const toggleSave = (id) => {
+  const toggleSave = (id, title) => {
+    const wasSaved = savedState[id];
     setSavedState((prev) => ({ ...prev, [id]: !prev[id] }));
+    if (showToast) {
+      showToast(
+        wasSaved ? `📋 "${title}" removido dos salvos` : `📋 "${title}" salvo!`,
+        'success'
+      );
+    }
   };
 
   const getMatchColor = (percent) => {
@@ -23,18 +30,18 @@ function EditaisTab() {
     <div className="max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <h1 className="text-2xl font-bold text-dark-50">Editais para Você</h1>
-        <span className="badge bg-primary-600/20 text-primary-400 border border-primary-600/30 px-3 py-1 text-xs font-medium rounded-full">
+        <h1 className="text-2xl font-bold text-white">Editais para Você</h1>
+        <span className="badge bg-primary-500/20 text-primary-400 border border-primary-500/30 px-3 py-1 text-xs font-medium rounded-full">
           ✨ Filtrados por IA
         </span>
       </div>
 
       {/* Editais list */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {sortedEditais.map((edital) => (
           <div
             key={edital.id}
-            className="card p-5 hover:border-primary-600/30 transition-all duration-200"
+            className="card p-5 hover:border-primary-500/30 transition-all duration-200"
           >
             {/* Top row */}
             <div className="flex items-start justify-between gap-3 mb-3">
@@ -43,10 +50,10 @@ function EditaisTab() {
                 <p className="text-sm text-dark-400 mt-0.5">{edital.company}</p>
               </div>
               <button
-                onClick={() => toggleSave(edital.id)}
-                className={`p-2 rounded-lg transition-colors shrink-0 ${
+                onClick={() => toggleSave(edital.id, edital.title)}
+                className={`p-2 rounded-lg transition-all duration-200 shrink-0 ${
                   savedState[edital.id]
-                    ? 'text-primary-400 hover:text-primary-300'
+                    ? 'text-primary-400 hover:text-primary-300 scale-110'
                     : 'text-dark-500 hover:text-dark-300'
                 }`}
               >

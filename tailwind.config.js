@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -6,31 +8,34 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
+      },
       colors: {
         primary: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+          50: '#FFFDE7',
+          100: '#FFF9C4',
+          200: '#FFF59D',
+          300: '#FFF176',
+          400: '#FFEE58',
+          500: '#FFC107',
+          600: '#FFB300',
+          700: '#FFA000',
+          800: '#FF8F00',
+          900: '#E65100',
         },
         dark: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          50: '#f5f5f5',
+          100: '#e0e0e0',
+          200: '#cccccc',
+          300: '#aaaaaa',
+          400: '#8a8a8a',
+          500: '#6a6a6a',
+          600: '#4a4a4a',
+          700: '#2d2d2d',
+          800: '#1a1a1a',
+          900: '#121212',
+          950: '#0a0a0a',
         }
       }
     },

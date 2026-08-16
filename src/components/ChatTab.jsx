@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { chatMessages } from '../data/mockData';
 
 const avatarColors = {
-  MS: 'bg-primary-600',
+  MS: 'bg-primary-500',
   PH: 'bg-emerald-600',
   AB: 'bg-pink-600',
   LF: 'bg-amber-600',
@@ -20,6 +20,17 @@ function formatTime(timestamp) {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function formatDayLabel(timestamp) {
+  const date = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return 'Hoje';
+  if (date.toDateString() === yesterday.toDateString()) return 'Ontem';
+  return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+}
+
 function ChatTab() {
   const [messages] = useState(chatMessages);
   const [inputValue, setInputValue] = useState('');
@@ -32,9 +43,26 @@ function ChatTab() {
   const handleSend = (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
-    // Simulação - apenas limpa input
     setInputValue('');
   };
+
+  // Group messages by day and consecutive author
+  const groupedMessages = [];
+  let lastDay = '';
+  let lastAuthor = '';
+
+  messages.forEach((msg) => {
+    const day = new Date(msg.timestamp).toDateString();
+    if (day !== lastDay) {
+      groupedMessages.push({ type: 'day-separator', label: formatDayLabel(msg.timestamp), key: `day-${day}` });
+      lastDay = day;
+      lastAuthor = '';
+    }
+
+    const isContinuation = msg.author.name === lastAuthor;
+    groupedMessages.push({ type: 'message', data: msg, isContinuation, key: msg.id });
+    lastAuthor = msg.author.name;
+  });
 
   return (
     <div className="max-w-3xl mx-auto h-[calc(100vh-12rem)] flex flex-col">
@@ -50,43 +78,61 @@ function ChatTab() {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto space-y-3 pr-2 mb-4 scrollbar-thin scrollbar-thumb-dark-700">
-        {messages.map((msg) => {
+      <div className="flex-1 overflow-y-auto space-y-1 pr-2 mb-4">
+        {groupedMessages.map((item) => {
+          if (item.type === 'day-separator') {
+            return (
+              <div key={item.key} className="flex items-center gap-3 my-4">
+                <div className="flex-1 h-px bg-dark-700" />
+                <span className="text-xs text-dark-500 font-medium px-2">{item.label}</span>
+                <div className="flex-1 h-px bg-dark-700" />
+              </div>
+            );
+          }
+
+          const msg = item.data;
           const isBot = msg.author.role === 'Bot';
+          const isContinuation = item.isContinuation;
+
           return (
             <div
-              key={msg.id}
-              className={`flex gap-3 p-3 rounded-xl transition-all duration-150 hover:bg-dark-800/50 ${
-                isBot ? 'border-l-2 border-blue-500 bg-dark-800/30' : ''
-              }`}
+              key={item.key}
+              className={`flex gap-3 rounded-xl transition-all duration-150 hover:bg-dark-800/50 ${
+                isContinuation ? 'pl-12 py-1' : 'p-3'
+              } ${isBot ? 'border-l-2 border-gray-500 bg-dark-800/30' : ''}`}
             >
-              {/* Avatar */}
-              <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${
-                  isBot ? 'bg-blue-600' : avatarColors[msg.author.avatar] || 'bg-primary-600'
-                }`}
-              >
-                {isBot ? '🤖' : msg.author.avatar}
-              </div>
+              {/* Avatar - only show for first message in group */}
+              {!isContinuation && (
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                    isBot ? 'bg-gray-600 text-white' : `${avatarColors[msg.author.avatar] || 'bg-primary-500'} text-dark-950`
+                  }`}
+                >
+                  {isBot ? '🤖' : msg.author.avatar}
+                </div>
+              )}
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="font-semibold text-dark-100 text-sm">
-                    {msg.author.name}
-                  </span>
-                  {msg.author.badge && (
-                    <span className="text-xs">{msg.author.badge}</span>
-                  )}
-                  {msg.author.role !== 'Membro' && (
-                    <span className={getRoleBadgeClass(msg.author.role)}>
-                      {msg.author.role}
+                {/* Author info - only show for first message in group */}
+                {!isContinuation && (
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="font-semibold text-dark-100 text-sm">
+                      {msg.author.name}
                     </span>
-                  )}
-                  <span className="text-xs text-dark-600 ml-auto shrink-0">
-                    {formatTime(msg.timestamp)}
-                  </span>
-                </div>
+                    {msg.author.badge && (
+                      <span className="text-xs">{msg.author.badge}</span>
+                    )}
+                    {msg.author.role !== 'Membro' && (
+                      <span className={getRoleBadgeClass(msg.author.role)}>
+                        {msg.author.role}
+                      </span>
+                    )}
+                    <span className="text-xs text-dark-600 ml-auto shrink-0">
+                      {formatTime(msg.timestamp)}
+                    </span>
+                  </div>
+                )}
                 <p className="text-sm text-dark-200 leading-relaxed whitespace-pre-line">
                   {msg.content}
                 </p>
@@ -99,7 +145,6 @@ function ChatTab() {
 
       {/* Input area */}
       <form onSubmit={handleSend} className="shrink-0 flex items-center gap-2">
-        {/* Attach button */}
         <button
           type="button"
           className="p-2.5 rounded-lg bg-dark-800 text-dark-400 hover:text-dark-200 hover:bg-dark-700 transition-colors"
@@ -109,7 +154,6 @@ function ChatTab() {
           </svg>
         </button>
 
-        {/* Input */}
         <input
           type="text"
           value={inputValue}
@@ -118,10 +162,9 @@ function ChatTab() {
           className="flex-1 bg-dark-800 border border-dark-600 rounded-lg px-4 py-2.5 text-sm text-dark-100 placeholder-dark-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500/30 transition-all"
         />
 
-        {/* Send button */}
         <button
           type="submit"
-          className="p-2.5 rounded-lg bg-primary-600 text-white hover:bg-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2.5 rounded-lg bg-primary-500 text-dark-950 hover:bg-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!inputValue.trim()}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
